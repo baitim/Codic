@@ -12,8 +12,8 @@ class Window(QMainWindow, Ui_MainWindow):
 		self.send.clicked.connect(self.send_message)
 
 	def send_message(self):
-		message = self.textbox.toPlainText()
-		print("message: ", message.encode())
+		message = self.message.toPlainText()
+		print("message: ", message)
 
 
 def application():
