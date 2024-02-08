@@ -33,7 +33,7 @@
      <string notr="true">background-color: rgb(119, 118, 123);</string>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="program">
      <attribute name="title">
@@ -94,7 +94,10 @@ p, li { white-space: pre-wrap; }
        <string notr="true">background-color: rgb(205, 171, 143);</string>
       </property>
       <property name="text">
-       <string/>
+       <string>gfhjfhf</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
       </property>
      </widget>
     </widget>

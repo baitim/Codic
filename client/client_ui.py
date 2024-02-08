@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'client.ui'
+# Form implementation generated from reading ui file 'client/client.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.10
 #
@@ -9,9 +9,6 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import QUrl, QFileInfo
-from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
-from PyQt5.QtMultimediaWidgets import QVideoWidget
 
 
 class Ui_MainWindow(object):
@@ -40,49 +37,19 @@ class Ui_MainWindow(object):
         self.answer = QtWidgets.QWidget()
         self.answer.setObjectName("answer")
         self.result = QtWidgets.QLabel(self.answer)
-        self.result.setGeometry(QtCore.QRect(10, 10, 575, 400))
+        self.result.setGeometry(QtCore.QRect(10, 10, 575, 750))
         self.result.setStyleSheet("background-color: rgb(205, 171, 143);")
-        self.result.setText("")
-        self.chip_player = QMediaPlayer(self.answer)
-        chip_video_widget = QVideoWidget(self.answer)
-        chip_file_info = QFileInfo("../images/chip_walking.mp4")
-        chip_url = QUrl.fromLocalFile(chip_file_info.absoluteFilePath())
-        self.chip_player.setMedia(QMediaContent(chip_url))
-        self.chip_player.setVideoOutput(chip_video_widget)
-        chip_video_widget.setGeometry(QtCore.QRect(10, 420, 575, 323))
+        self.result.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
         self.result.setObjectName("result")
         self.tabWidget.addTab(self.answer, "")
         self.support = QtWidgets.QWidget()
         self.support.setObjectName("support")
-        self.chipi_player = QMediaPlayer(self.support)
-        chipi_video_widget = QVideoWidget(self.support)
-        chipi_file_info = QFileInfo("../images/chipi.mp4")
-        chipi_url = QUrl.fromLocalFile(chipi_file_info.absoluteFilePath())
-        self.chipi_player.setMedia(QMediaContent(chipi_url))
-        self.chipi_player.setVideoOutput(chipi_video_widget)
-        chipi_video_widget.setGeometry(QtCore.QRect(10, 10, 575, 323))
-        
-        self.tabWidget.currentChanged.connect(self.control_chipi)
-        self.tabWidget.currentChanged.connect(self.control_chip)
-
         self.tabWidget.addTab(self.support, "")
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
-    
-    def control_chipi(self, index):
-        if (index == 2):
-            self.chipi_player.play()
-        else:
-            self.chipi_player.stop()
-
-    def control_chip(self, index):
-        if (index == 1):
-            self.chip_player.play()
-        else:
-            self.chip_player.stop()
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -95,5 +62,6 @@ class Ui_MainWindow(object):
 "</style></head><body style=\" font-family:\'Ubuntu\'; font-size:11pt; font-weight:400; font-style:normal;\">\n"
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p></body></html>"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.program), _translate("MainWindow", "program"))
+        self.result.setText(_translate("MainWindow", "gfhjfhf"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.answer), _translate("MainWindow", "answer"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.support), _translate("MainWindow", "support"))
