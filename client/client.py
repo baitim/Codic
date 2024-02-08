@@ -11,10 +11,18 @@ class Window(QMainWindow, Ui_MainWindow):
 	def __init__(self):
 		super().__init__()
 		self.setupUi(self)
+		self.send_connect_message()
 		self.send.clicked.connect(self.send_message)
 
+	def show_message(self, message):
+		self.result.append(message)
+
+	def send_connect_message(self):
+		message = "CONNECT"
+		self.sock.send(message.encode())
+
 	def send_message(self):
-		message = self.enter.toPlainText()
+		message = "PROGRAM " + self.enter.toPlainText()
 		self.sock.send(message.encode())
 
 class Chat(QObject):
@@ -42,7 +50,8 @@ def application():
 	sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	sock.connect((host, int(port)))
 	sock.setblocking(False)
-	activate_chat = Chat(sock)
+	chat = Chat(sock)
+	chat.messageReceived.connect(window.show_message)
 
 	app = QApplication(sys.argv)
 
