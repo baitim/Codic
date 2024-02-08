@@ -25,6 +25,7 @@ class Window(QMainWindow, Ui_MainWindow):
 		message = "PROGRAM " + self.enter.toPlainText()
 		self.sock.send(message.encode())
 
+
 class Chat(QObject):
 	messageReceived = pyqtSignal(str)
 

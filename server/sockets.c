@@ -1,12 +1,14 @@
 #include <time.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "user.h"
 #include "sockets.h"
 
-#define MAX_SIZE_STATE_BUFFER 10000
+#define MAX_SIZE_PROG_BUFFER 10000
 
 struct _User {
-	int num; //TODO: change to unique id
+	int id;
 	struct sockaddr_in addr;
 	User_status status;
 	int score;
@@ -14,13 +16,15 @@ struct _User {
 
 #define MAX_COUNT_USERS 100000
 User users[MAX_COUNT_USERS];
+uv_udp_t server;
 
 void register_user		(const struct sockaddr* addr);
 void parse_program		(const uv_buf_t* buf, const struct sockaddr* addr);
-void test_program		(int i, char* program_text);
+void test_program		(User *user, char* program_text);
+void run_program		(char *program_text);
 void send_state			();
 void send_buffer		(User* user, char* buf, size_t sz);
-void send_game_state_cb	(uv_udp_send_t* req);
+void req_delete			(uv_udp_send_t* req);
 static char* skip_spaces(char* str);
 
 void alloc_buffer(uv_handle_t* user, size_t sz, uv_buf_t* buf) 
@@ -35,10 +39,10 @@ void on_recv(uv_udp_t* handle, ssize_t nread, const uv_buf_t* buf,
 {
 	if (nread > 0) {
 		printf("%ld bytes got from %u user\n", nread, addr);
-		if (!strncmp(buf->base, "CONNECT", 7)) {
+		if (strncmp(buf->base, "CONNECT", 7) == 0) {
 			printf("Registering...\n");
 			register_user(addr);
-		} else if (nread > 7 && !strncmp(buf->base, "PROGRAM", 7)) {
+		} else if (nread > 7 && strncmp(buf->base, "PROGRAM", 7) == 0) {
 			parse_program(buf, addr);
 		} else { 
 			printf("Unknown request\n");
@@ -62,42 +66,39 @@ void register_user(const struct sockaddr* addr)
 //TODO: add user registration and authorization
 void parse_program(const uv_buf_t* buf, const struct sockaddr* addr)
 {
-	int num = 0;
+	int id = 0;
 	int nread = 0;
-	if (sscanf(buf->base, "PROGRAM %d%n", &num, &nread) == 1) {
-		printf("Message got from %d\n", num);
-
-		char program_text[MAX_SIZE_STATE_BUFFER] = "";
-		int i = 0;
-		while (*(buf->base + nread) != '\0') {
-			program_text[i] = *buf->base;
-			nread++;
-		}
+	if (sscanf(buf->base, "PROGRAM %d%n", &id, &nread) == 1) {
+		printf("Message got from %d\n", id);
 
 		for (int i = 0; i < MAX_COUNT_USERS; i++) {
 			if (users[i].status == USER_STATUS_INACTIVE) continue;
-			//TODO: error out if id matches and addr is different
-			if (!memcmp(&users[i].addr, addr, sizeof(struct sockaddr_in)) && users[i].num == num) {
-				test_program(i, program_text);
+
+			if (users[i].id == id && memcmp(&users[i].addr, addr, sizeof(struct sockaddr_in) != 0)) {
+				fprintf(stderr, "Error: unauthorized access!\n");
+				return;
+			} 
+			else if (users[i].id == id) {
+				test_program(users + i, buf->base + nread);
 				return;
 			}
 		}
+	} else {
+		fprintf(stderr, "Error while parsing program: message format invalid\n");
 	}
 }
 
-void test_program(int i, char* program_text)
-{
-	User* user = &users[i];
-    
+void test_program(User *user, char* program_text)
+{   
     clock_t start = clock();
-	run_program(program_text);
+    run_program(program_text);
     clock_t end = clock();
-    double execution_time = (double)(end - start);
-    double seconds = execution_time / CLOCKS_PER_SEC;
-    printf("Execution time of %d: %lf\n", user->num, seconds);
+    clock_t execution_ticks = end - start;
+    double seconds = (double) execution_ticks / CLOCKS_PER_SEC;
+    printf("Execution time of %d: %lf\n", user->id, seconds);
 
 	int sz = 0;
-	char buf[MAX_SIZE_STATE_BUFFER];
+	char buf[MAX_SIZE_PROG_BUFFER];
 	sz += sprintf(buf, "TIME %lf\n", seconds);
 	send_buffer(user, buf, sz);
 }
@@ -112,11 +113,11 @@ void send_state()
 	size_t sz = 0;
 	User* user;
 
-	char state_buf[MAX_SIZE_STATE_BUFFER];
+	char state_buf[MAX_SIZE_PROG_BUFFER];
 	for (user = users; user < users + MAX_COUNT_USERS; user++) {
 		if (user->status == USER_STATUS_INACTIVE) continue;
-		sz += sprintf(state_buf + sz, "STATE %d %d %d\n", user->num, user->status, user->score);
-		printf("User %d: %d %d\n", user->num, user->status, user->score);
+		sz += sprintf(state_buf + sz, "STATE %d %d %d\n", user->id, user->status, user->score);
+		printf("User %d: %d %d\n", user->id, user->status, user->score);
 	}
 
 	for (user = users; user < users + MAX_COUNT_USERS; user++) {
@@ -131,10 +132,15 @@ void send_buffer(User* user, char* buf, size_t sz)
 	uv_udp_send_t* req = malloc(sizeof(uv_udp_send_t));
 	uv_req_set_data((uv_req_t*)req, buf);
 	uv_udp_send(req, &server, &wbuf, 1, (const struct sockaddr*)&user->addr,
-			send_game_state_cb);
+			req_delete);
 }
 
-void send_game_state_cb(uv_udp_send_t* req)
+void run_program(char *program_text)
+{
+	return;
+}
+
+void req_delete(uv_udp_send_t* req)
 {
 	free(req);
 }
