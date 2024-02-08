@@ -13,7 +13,7 @@ CC = gcc
 all : $(EXE)
 
 $(EXE) : $(OBJECTS)
-	@$(CC) -o $(EXE) $(OBJECTS) /usr/local/lib/libuv.so 
+	@$(CC) -o $(EXE) $(OBJECTS) /usr/lib/libuv.so 
 
 $(OBJECTS) : $(OBJECTS_DIR)/%.o: server/%.c | $(OBJECTS_DIR)
 	@$(CC) -c $< -o $@
