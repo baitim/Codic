@@ -19,7 +19,7 @@ $(OBJECTS) : $(OBJECTS_DIR)/%.o: server/%.c | $(OBJECTS_DIR)
 	@$(CC) -c $< -o $@
 
 $(OBJECTS_DIR) :
-	mkdir -p $(OBJECTS_DIR)
+	mkdir -p $(OBJECTS_DIR) %2>/dev/null
 
 clean :
 	rm $(EXE) $(OBJECTS)
