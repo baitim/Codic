@@ -49,6 +49,6 @@ jobs:
         key: ${{ secrets.SSHKEY }}
         script: >
           docker run
-          -v logs:/app/logs
+          -v /root/logs:/app/logs
           -p ${{ secrets.APP_PORT }}:5002
           --name codic -d codic
