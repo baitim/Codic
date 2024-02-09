@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include "uv.h"
+#include "logger.h"
 
 extern uv_udp_t server;
 

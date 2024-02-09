@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include "test.h"
 
 void run_program(char* program_text)

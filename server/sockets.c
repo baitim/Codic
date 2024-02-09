@@ -29,6 +29,7 @@ static char* skip_spaces(char* str);
 
 void alloc_buffer(uv_handle_t* user, size_t sz, uv_buf_t* buf) 
 {
+    log_message(DEBUG, "Allocating buffer for messages...\n");
 	buf->base = malloc(sz);
 	buf->len  = sz;
 }
@@ -37,15 +38,17 @@ void alloc_buffer(uv_handle_t* user, size_t sz, uv_buf_t* buf)
 void on_recv(uv_udp_t* handle, ssize_t nread, const uv_buf_t* buf, 
              const struct sockaddr* addr, unsigned flags)
 {
+    log_message(DEBUG, "Received a message: %s\n", buf->base);
 	if (nread > 0) {
-		printf("%ld bytes got from user\n", nread);
+		log_message(INFO, "%ld bytes got from user\n", nread);
 		if (strncmp(buf->base, "CONNECT", 7) == 0) {
-			printf("Registering...\n");
+			log_message(INFO, "Registering...\n");
 			register_user(addr);
 		} else if (nread > 7 && strncmp(buf->base, "PROGRAM", 7) == 0) {
+            log_message(INFO, "Parsing program...\n");
 			parse_program(buf, addr);
 		} else { 
-			printf("Unknown request\n");
+			log_message(ERROR, "Unknown request\n");
 		}
 	}
 }
@@ -56,7 +59,7 @@ void register_user(const struct sockaddr* addr)
 		if (users[i].status == USER_STATUS_INACTIVE) {
 			struct sockaddr_in* addr_in = (struct sockaddr_in*)addr;
 			char* a = (char*)&(addr_in->sin_addr.s_addr);
-			printf("Registering user from %d.%d.%d.%d:%d\n", a[0], a[1], a[2], a[3], addr_in->sin_port);
+			log_message(INFO, "Registering user from %d.%d.%d.%d:%d\n", a[0], a[1], a[2], a[3], addr_in->sin_port);
 			users[i] = (User){i, *addr_in, USER_STATUS_ACTIVE, 0};
 			return;
 		}
@@ -69,13 +72,13 @@ void parse_program(const uv_buf_t* buf, const struct sockaddr* addr)
 	int id = 0;
 	int nread = 0;
 	if (sscanf(buf->base, "PROGRAM %d%n", &id, &nread) == 1) {
-		printf("Message got from %d\n", id);
+		log_message(INFO, "Message got from %d\n", id);
 
 		for (int i = 0; i < MAX_COUNT_USERS; i++) {
 			if (users[i].status == USER_STATUS_INACTIVE) continue;
 
 			if (users[i].id == id && memcmp(&users[i].addr, addr, sizeof(struct sockaddr_in) != 0)) {
-				fprintf(stderr, "Error: unauthorized access!\n");
+				log_message(ERROR, "Unauthorized access!\n");
 				return;
 			} 
 			else if (users[i].id == id) {
@@ -84,7 +87,7 @@ void parse_program(const uv_buf_t* buf, const struct sockaddr* addr)
 			}
 		}
 	} else {
-		fprintf(stderr, "Error while parsing program: message format invalid\n");
+		log_message(ERROR, "Error while parsing program: message format invalid\n");
 	}
 }
 
@@ -95,7 +98,7 @@ void test_program(User *user, char* program_text)
     clock_t end = clock();
     clock_t execution_ticks = end - start;
     double seconds = (double) execution_ticks / CLOCKS_PER_SEC;
-    printf("Execution time of %d: %lf\n", user->id, seconds);
+    log_message(INFO, "Execution time of %d: %lf\n", user->id, seconds);
 
 	int sz = 0;
 	char buf[MAX_SIZE_PROG_BUFFER];
@@ -110,6 +113,7 @@ void update_state(uv_timer_t* timer)
 
 void send_state()
 {
+    log_message(DEBUG, "Sending state...\n");
 	size_t sz = 0;
 	User* user;
 
@@ -117,7 +121,7 @@ void send_state()
 	for (user = users; user < users + MAX_COUNT_USERS; user++) {
 		if (user->status == USER_STATUS_INACTIVE) continue;
 		sz += sprintf(state_buf + sz, "STATE %d %d %d\n", user->id, user->status, user->score);
-		printf("User %d: %d %d\n", user->id, user->status, user->score);
+		log_message(DEBUG, "User %d: %d %d\n", user->id, user->status, user->score);
 	}
 
 	for (user = users; user < users + MAX_COUNT_USERS; user++) {
