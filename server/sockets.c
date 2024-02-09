@@ -24,7 +24,7 @@ void test_program		(User *user, char* program_text);
 void run_program		(char *program_text);
 void send_state			();
 void send_buffer		(User* user, char* buf, size_t sz);
-void req_delete			(uv_udp_send_t* req);
+void req_delete			(uv_udp_send_t* req, int status);
 static char* skip_spaces(char* str);
 
 void alloc_buffer(uv_handle_t* user, size_t sz, uv_buf_t* buf) 
@@ -38,7 +38,7 @@ void on_recv(uv_udp_t* handle, ssize_t nread, const uv_buf_t* buf,
              const struct sockaddr* addr, unsigned flags)
 {
 	if (nread > 0) {
-		printf("%ld bytes got from %u user\n", nread, addr);
+		printf("%ld bytes got from user\n", nread);
 		if (strncmp(buf->base, "CONNECT", 7) == 0) {
 			printf("Registering...\n");
 			register_user(addr);
@@ -135,12 +135,7 @@ void send_buffer(User* user, char* buf, size_t sz)
 			req_delete);
 }
 
-void run_program(char *program_text)
-{
-	return;
-}
-
-void req_delete(uv_udp_send_t* req)
+void req_delete(uv_udp_send_t* req, int status)
 {
 	free(req);
 }

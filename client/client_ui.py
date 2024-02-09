@@ -62,6 +62,6 @@ class Ui_MainWindow(object):
 "</style></head><body style=\" font-family:\'Ubuntu\'; font-size:11pt; font-weight:400; font-style:normal;\">\n"
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p></body></html>"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.program), _translate("MainWindow", "program"))
-        self.result.setText(_translate("MainWindow", "gfhjfhf"))
+        self.result.setText(_translate("MainWindow", ""))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.answer), _translate("MainWindow", "answer"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.support), _translate("MainWindow", "support"))

@@ -8,22 +8,26 @@ import sys
 import socket
 
 class Window(QMainWindow, Ui_MainWindow):
-	def __init__(self):
+	def __init__(self, sock):
 		super().__init__()
+		self.sock = sock
 		self.setupUi(self)
 		self.send_connect_message()
 		self.send.clicked.connect(self.send_message)
 
 	def show_message(self, message):
 		self.result.append(message)
+		print("RES ", message)
 
 	def send_connect_message(self):
 		message = "CONNECT"
 		self.sock.send(message.encode())
+		print(message)
 
 	def send_message(self):
-		message = "PROGRAM " + self.enter.toPlainText()
+		message = "PROGRAM " + self.message.toPlainText()
 		self.sock.send(message.encode())
+		print("PROGRAM ", message)
 
 
 class Chat(QObject):
@@ -37,6 +41,7 @@ class Chat(QObject):
 	def check_message(self):
 		try:
 			message = self.sock.recv(2048).decode()
+			print("GET ", message)
 		except Exception:
 			QTimer.singleShot(100, self.check_message)
 			return
@@ -46,17 +51,16 @@ class Chat(QObject):
 
 def application():
 
+	app = QApplication(sys.argv)
 	host = os.environ["HOST"]
 	port = os.environ["PORT"]
-	sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 	sock.connect((host, int(port)))
 	sock.setblocking(False)
+	window = Window(sock)
 	chat = Chat(sock)
 	chat.messageReceived.connect(window.show_message)
 
-	app = QApplication(sys.argv)
-
-	window = Window()
 	window.show()
 
 	sys.exit(app.exec_())
