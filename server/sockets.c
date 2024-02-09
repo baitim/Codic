@@ -113,7 +113,6 @@ void update_state(uv_timer_t* timer)
 
 void send_state()
 {
-    log_message(DEBUG, "Sending state...\n");
 	size_t sz = 0;
 	User* user;
 
@@ -121,7 +120,6 @@ void send_state()
 	for (user = users; user < users + MAX_COUNT_USERS; user++) {
 		if (user->status == USER_STATUS_INACTIVE) continue;
 		sz += sprintf(state_buf + sz, "STATE %d %d %d\n", user->id, user->status, user->score);
-		log_message(DEBUG, "User %d: %d %d\n", user->id, user->status, user->score);
 	}
 
 	for (user = users; user < users + MAX_COUNT_USERS; user++) {
