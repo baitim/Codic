@@ -7,6 +7,7 @@
          :          :
          `._m____m_,'
 */
+#include <stdio.h>
 
 #include "sockets.h"
 #include "logger.h"
@@ -17,6 +18,8 @@ int main()
 
     add_log_handler((struct Log_handler) { stderr, WARN, 1 });
     FILE *log = fopen("logs/log.txt", "w");
+    setvbuf(log, NULL, _IONBF, 0);
+    
     if (log)
         add_log_handler((struct Log_handler) { log, DEBUG, 0 });
 
